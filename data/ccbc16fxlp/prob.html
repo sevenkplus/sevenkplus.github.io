@@ -14,6 +14,7 @@ var testSolve = true;
 var handAdjust = !testSolve;
 var showDecomp = true;
 var forceShowDecomp = false;
+var PROGRESS_KEY = "ccbc16fxlp-progress";
 //var randomStart = false || testSolve;
 var username = "username";
 var decompositionTypes = new Map([
@@ -167,6 +168,36 @@ function resetVisibleNodes() {
 	expandVisibleNodes()
 }
 resetVisibleNodes()
+
+function saveProgress() {
+  try {
+	const data = { visible: Array.from(visibleNodes) };
+	localStorage.setItem(PROGRESS_KEY, JSON.stringify(data));
+  } catch (e) {
+	// ignore storage errors
+  }
+}
+
+function loadProgress() {
+  try {
+	const raw = localStorage.getItem(PROGRESS_KEY);
+	if (!raw)
+	  return;
+	const data = JSON.parse(raw);
+	if (!data || !Array.isArray(data.visible))
+	  return;
+	data.visible.forEach((id) => {
+	  if (baseNodeSet.has(id)) {
+		visibleNodes.add(id);
+	  }
+	});
+	expandVisibleNodes();
+  } catch (e) {
+	// ignore storage errors
+  }
+}
+
+loadProgress()
 
 var nodes = []
 var links = []
@@ -364,10 +395,14 @@ function processGuess(guess) {
 	}
   });
   if (showNodes.has(guess)) {
+	const beforeSize = visibleNodes.size;
 	visibleNodes.add(guess)
 	//document.getElementById("visible").innerHTML = visibleNodes.size;
 	//document.getElementById("total").innerHTML = baseNodeSet.size;
 	expandVisibleNodes()
+	if (visibleNodes.size !== beforeSize) {
+	  saveProgress()
+	}
     updateSimulation()
   }
 }
@@ -534,7 +569,7 @@ updateSimulation()
 <li>Scroll down to see the start.</li>
 <li>During the hunt, "username" shows the player's username.</li>
 <li>Reading the source code is not part of the puzzle.</li>
-<li>Progress saving is not implemented in this version.</li>
+<li>Progress auto-saves locally in your browser.</li>
 <li>Answer checker: <a href="https://philippica.github.io/cipher_machine/check?answer=506e1c38a9d3f59b&problem=5rWu5oOz6IGU57%2Bp&endText=" target="_blank">Link</a></li>
 <li>Solution: <a href="sol.html" target="_blank">Link</a></li>
 </ul>
