@@ -266,6 +266,23 @@ var linkElements,
   nodeElements,
   textElements
 
+function centerOnUsername() {
+  try {
+	var target = textGroup.selectAll('text').filter(function(d) { return d.id === username; }).node();
+	if (!target) return;
+	var rect = target.getBoundingClientRect();
+	var targetX = rect.left + window.scrollX + rect.width / 2;
+	var targetY = rect.top + window.scrollY + rect.height / 2;
+	window.scrollTo({
+	  left: Math.max(targetX - window.innerWidth / 2, 0),
+	  top: Math.max(targetY - window.innerHeight / 2, 0),
+	  behavior: 'auto'
+	});
+  } catch (e) {
+	// ignore scroll errors
+  }
+}
+
 // we use svg groups to logically group the elements together
 var linkGroup = svg.append('g').attr('class', 'links')
 var nodeGroup = svg.append('g').attr('class', 'nodes')
@@ -548,6 +565,7 @@ function updateSimulation() {
 // last but not least, we call updateSimulation
 // to trigger the initial render
 updateSimulation()
+setTimeout(centerOnUsername, 100)
 
 </script>
 
@@ -566,7 +584,6 @@ updateSimulation()
 <p>Note for this (temporary) archive version:
 <ul>
 <li>This note is not part of the puzzle.</li>
-<li>Scroll down to see the start.</li>
 <li>During the hunt, "username" shows the player's username.</li>
 <li>Reading the source code is not part of the puzzle.</li>
 <li>Progress auto-saves locally in your browser.</li>
